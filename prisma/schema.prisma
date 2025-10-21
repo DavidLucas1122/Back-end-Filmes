@@ -10,6 +10,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model tbl_teste{
+  id Int @id @default(autoincrement())
+  nome String
 }
