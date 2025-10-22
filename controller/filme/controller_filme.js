@@ -21,7 +21,7 @@ const listarFilmes = async function () {
 
 
     try {
-        //Chama a função do DAO paa retornar a lista de filmes
+        //Chama a função do DAO para retornar a lista de filmes
         let result = await filmeDAO.getSelectAllFilms()
 
         if (result) {
@@ -41,7 +41,6 @@ const listarFilmes = async function () {
     } catch (error) {
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
-
 }
 
 //Retorna um filme filtrando pelo ID
