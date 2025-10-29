@@ -1,6 +1,6 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de gêneros de filmes no Banco de Dados MySQL
- * Data: 22/10/2025
+ * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL
+ * Data: 29/10/2025
  * Autor: David
  * Versão: 1.0
  *******************************************************************************************/
@@ -12,67 +12,68 @@ const { PrismaClient } = require('../../generated/prisma')
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
 
-//Retornar todos os gêneros de filmes no banco de dados
-const getSelectAllGenre = async function () {
+//Retorna todos as classificações do banco de dados
+const getSelectAllRatings = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_genero order by genero_id desc`
+        let sql = `select * from tbl_classificacao order by classificacao_id desc`
 
-        //Executar o script no BD
+        //Executa no BD o scrpt SQL
         let result = await prisma.$queryRawUnsafe(sql)
 
         if (Array.isArray(result))
             return result
-        else
-            return false
-    } catch (error) {
-        return error
-    }
-}
-
-//Retornar gênero filtrando pelo ID
-const getSelectByIdGenre = async function (genero_id) {
-    try {
-        //Script SQL
-        let sql = `select * from tbl_genero where genero_id = ${genero_id}`
-
-        //Executar o script no BD
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        if (Array.isArray(result))
-            return result
-        else
-            return false
-    } catch (error) {
-        return error
-    }
-}
-
-//Retornar o ID do último gênero
-const getSelectLastIdGenre = async function () {
-    try {
-        //Script SQL
-        let sql = `select genero_id from tbl_genero order by genero_id desc limit 1`
-
-        //Executa o script no BD
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        if (Array.isArray(result))
-            return Number(result[0].genero_id)
         else
             return 0
     } catch (error) {
         console.log(error)
+        return 2
+    }
+}
+
+//Retorna uma classificacao filtrando pelo ID no banco de dados
+const getSelectByIdRating = async function (id) {
+    try {
+        //Script SQL
+        let sql = `select * from tbl_classificacao where classificacao_id=${id}`
+
+        //Executa no BD o scrpt SQL
+        let result = await prisma.$queryRawUnsafe(sql)
+
+        if (Array.isArray(result))
+            return result
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
+//Retornar o ID da última classificação
+const getSelectLastIdRating = async function () {
+    try {
+        //Script SQL
+        let sql = `select classificacao_id from tbl_classificacao order by classificacao_id desc limit 1`
+
+        //Executa o script no BD
+        let result = await prisma.$queryRawUnsafe(sql)
+
+        if (Array.isArray(result)){
+            return Number(result[0].classificacao_id)
+        }
+        else
+            return 0
+    } catch (error) {
         return error
     }
 }
 
-//Insere um gênero no BD
-const setInsertGenre = async function (genero) {
+//Insere uma classificacao no BD
+const setInsertRating = async function (classificacao) {
     try {
-        let sql = `insert into tbl_genero (nome)
+        let sql = `insert into tbl_classificacao (nome)
         values(
-            '${genero.nome}');`
+            '${classificacao.nome}');`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -85,12 +86,12 @@ const setInsertGenre = async function (genero) {
     }
 }
 
-//Atualiza um gênero no banco filtrando por ID
-const setUpdateGenre = async function (genero) {
+//Atualiza uma classificação no banco filtrando ID
+const setUpdateRating = async function (classificacao) {
     try {
-        let sql = `update tbl_genero set
-                         nome = '${genero.nome}'
-                    where genero_id = ${genero.id}`
+        let sql = `update tbl_classificacao set
+                         nome = '${classificacao.nome}'
+                    where classificacao_id = ${classificacao.id}`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
@@ -104,10 +105,10 @@ const setUpdateGenre = async function (genero) {
     }
 }
 
-//Apaga um gênero no banc de dados
-const setDeleteGenre = async function (id) {
+//Deleta uma classificação
+const setDeleteRating = async function (id) {
     try {
-        let sql = `delete from tbl_genero where genero_id = ${id}`
+        let sql = `delete from tbl_classificacao where classificacao_id = ${id}`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -121,12 +122,12 @@ const setDeleteGenre = async function (id) {
 }
 
 
-//Exports de funções
+
 module.exports = {
-    getSelectAllGenre,
-    getSelectByIdGenre,
-    getSelectLastIdGenre,
-    setInsertGenre,
-    setUpdateGenre,
-    setDeleteGenre
+    getSelectAllRatings,
+    getSelectByIdRating,
+    getSelectLastIdRating,
+    setInsertRating,
+    setUpdateRating,
+    setDeleteRating
 }

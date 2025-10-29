@@ -1,34 +1,33 @@
 /************************************************************************
  * Objetivo: Arquivo responsável pela manipulação entre o APP e a Model 
  *              (Validações, tratamento de dados, tratamento de erros, etc)
- * Data: 22/10/2025
+ * Data: 29/10/2025
  * Autor: David
  * Versão 1.0
 **************************************************************************/
 
 //Import do arquivo DAO para manipular o CRUD o BD
 const { json } = require('body-parser')
-const generoDAO = require('../../model/DAO/genero.js')
+const classificacaoDAO = require('../../model/DAO/classificacao.js')
 
-//import do arquivo que padroniza as respostas
+//import do arquivo de que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
-//Listar os gêneros de filmes
-const listarGeneros = async function () {
-    //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
+const listarClassificacoes = async function () {
+    //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
+
     try {
-        //Chama a função do DAO para retornar a lista de gêneros de filmes
-        let result = await generoDAO.getSelectAllGenre()
-        console.log(result)
+        //Chama a função do DAO para retornar a lista de filmes
+        let result = await classificacaoDAO.getSelectAllRatings()
 
         if (result) {
             //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
             if (Array.isArray(result)) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.gender = result
+                MESSAGE.HEADER.response.ratings = result
 
                 return MESSAGE.HEADER //200
             } else {
@@ -42,23 +41,21 @@ const listarGeneros = async function () {
     }
 }
 
-//Filtrar gêneros por ID
-const buscarGeneroPorId = async function (genero_id) {
-    //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
-    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+const buscarClassificacaoId = async function (id) {
 
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
     try {
         //Validação de campo obrigatório
-        if (genero_id !== '' && genero_id != null && genero_id != undefined && !isNaN(genero_id) && genero_id > 0) {
-            //Chamar a função para filtrar ID
-            let result = await generoDAO.getSelectByIdGenre(parseInt(genero_id))
+        if (id !== '' && id != null && id != undefined && !isNaN(id) && id > 0) {
+
+            //Chama a função para filtrar o id                                                                              
+            let result = await classificacaoDAO.getSelectByIdRating(parseInt(id))
 
             if (result) {
-                console.log(result)
                 if (result.length > 0) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                    MESSAGE.HEADER.response.gender = result
+                    MESSAGE.HEADER.response.rating = result
 
                     return MESSAGE.HEADER //200
                 } else {
@@ -67,8 +64,7 @@ const buscarGeneroPorId = async function (genero_id) {
             } else {
                 return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
-        }
-        else {
+        } else {
             MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [ID] inválido!!!'
             return MESSAGE.ERROR_REQUIRED_FIELDS //400
         }
@@ -78,31 +74,30 @@ const buscarGeneroPorId = async function (genero_id) {
     }
 }
 
-//Inserir um novo genero
-const inserirGenero = async function (genero, contentType) {
+const inserirClassificacao = async function (classificacao, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
-            //Função para validar genero
-            let validarDados = await validarDadosGenero(genero)
+            //Função para validar classificacao
+            let validarDados = await validarDadosClassificacao(classificacao)
 
             if (!validarDados) {
 
-                //Função DAO para inserir genero
-                let result = await generoDAO.setInsertGenre(genero, contentType)
+                //Função DAO para inserir classificacao
+                let result = await classificacaoDAO.setInsertRating(classificacao, contentType)
 
                 if (result) {
                     //Função para receber o ID gerado
-                    let lastIdGenre = await generoDAO.getSelectLastIdGenre()
+                    let lastIdRating = await classificacaoDAO.getSelectLastIdRating()
 
-                    if (lastIdGenre) {
-                        genero.id = lastIdGenre
+                    if (lastIdRating) {
+                        classificacao.id = lastIdRating
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
-                        MESSAGE.HEADER.response = genero
+                        MESSAGE.HEADER.response = classificacao
 
                         return MESSAGE.HEADER //201
                     } else {
@@ -118,13 +113,12 @@ const inserirGenero = async function (genero, contentType) {
             return MESSAGE.ERROR_CONTENT_TYPE //415
         }
     } catch (error) {
-        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
-//Atualiza um genero filtrando pelo ID
-const atualizarGenero = async function (genero, id, contentType) {
+//Atualiza uma classificação pelo ID
+const atualizarClassificacao = async function (classificacao, id, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -133,34 +127,33 @@ const atualizarGenero = async function (genero, id, contentType) {
 
 
             //Chama a função de validação dos dados de cadastro
-            let validarDados = await validarDadosGenero(genero)
+            let validarDados = await validarDadosClassificacao(classificacao)
 
             if (!validarDados) {
 
                 //Chama a função para validar a consistência do ID e verificar se existe no banco de dados                
-                let validarID = await buscarGeneroPorId(id)
+                let validarID = await buscarClassificacaoId(id)
 
                 //Verifica se o ID existe no BD, caso exista teremos o status 200  
                 if (validarID.status_code == 200) {
 
-                    //Adicionando o ID no JSON com os dados do genero
-                    genero.id = parseInt(id)
+                    //Adicionando o ID no JSON com os dados do classificacao
+                    classificacao.id = parseInt(id)
 
-                    //Chama a função do DAO para atualizar um genero
-                    let result = await generoDAO.setUpdateGenre(genero)
-
+                    //Chama a função do DAO para atualizar um classificacao
+                    let result = await classificacaoDAO.setUpdateRating(classificacao)
                     if (result) {
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response = genero
+                        MESSAGE.HEADER.response = classificacao
 
                         return MESSAGE.HEADER //200
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
                 } else {
-                    return validarID //retorno da função de buscarGeneroId (400 ou 404 ou 500)
+                    return validarID //retorno da função de buscarClassificacaoId (400 ou 404 ou 500)
                 }
             } else {
                 return validarDados //400
@@ -173,40 +166,35 @@ const atualizarGenero = async function (genero, id, contentType) {
     }
 }
 
-const excluirGenero = async function (id) {
-
+const excluirClassificacao = async function (id) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-
-    try {
-        let validarID = await buscarGeneroPorId(id)
-
-        if (validarID.status_code == 200) {
-            let result = await generoDAO.setDeleteGenre(id)
-
-            if (result) {
-                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
-                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
-                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
-
-                return MESSAGE.HEADER //200
+    
+        try {
+            let validarID = await buscarClassificacaoId(id)
+    
+            if (validarID.status_code == 200) {
+                let result = await classificacaoDAO.setDeleteRating(id)
+                if (result) {
+                    MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+                    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+                    MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+    
+                    return MESSAGE.HEADER //200
+                } else {
+                    return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+                }
             } else {
-                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+                validarID
             }
-        } else {
-            validarID
+        } catch (error) {
+            return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
         }
-    } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
 }
 
-
-
-//Validar nome do genero
-const validarDadosGenero = async function (genero) {
+const validarDadosClassificacao = async function (classificacao) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    if (genero.nome == '' || genero.nome == null || genero.nome == undefined || genero.nome.length > 100) {
+    if (classificacao.nome == '' || classificacao.nome == null || classificacao.nome == undefined || classificacao.nome.length > 100) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [NOME] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
     } else {
@@ -216,12 +204,10 @@ const validarDadosGenero = async function (genero) {
 
 
 
-
-
 module.exports = {
-    listarGeneros,
-    buscarGeneroPorId,
-    inserirGenero,
-    atualizarGenero,
-    excluirGenero
+    listarClassificacoes,
+    buscarClassificacaoId,
+    inserirClassificacao,
+    atualizarClassificacao,
+    excluirClassificacao
 }
