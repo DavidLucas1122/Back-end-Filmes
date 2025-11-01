@@ -65,3 +65,69 @@ const getSelectLastIdCharacter = async function () {
         return error
     }
 }
+
+//Insere um personagem no BD
+const setInsertCharacter = async function (personagem) {
+    try {
+        let sql = `insert into tbl_personagem (nome, genero, idade, foto)
+        values(
+            '${personagem.nome}''${personagem.genero}', '${personagem.idade}', '${personagem.foto}');`
+
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
+//Atualiza um personagem
+const setUpdateCharacter = async function (personagem) {
+    try {
+        let sql = `update tbl_personagem set
+                         nome = '${personagem.nome}'
+                         genero = '${personagem.genero}'
+                         idade = '${personagem.idade}'
+                         foto = '${personagem.foto}'
+                    where id = ${personagem.id}`
+
+        // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
+//Apaga um personagem no banco de dados
+const setDeleteCharacter = async function (id) {
+    try {
+        let sql = `delete from tbl_personagem where id = ${id}`
+
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
+//exports das funções
+module.exports = {
+    getSelectAllCharacter,
+    getSelectByIdCharacter,
+    getSelectLastIdCharacter,
+    setInsertCharacter,
+    setUpdateCharacter,
+    setDeleteCharacter
+}

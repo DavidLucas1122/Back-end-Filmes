@@ -43,7 +43,7 @@ const listarGeneros = async function () {
 }
 
 //Filtrar gêneros por ID
-const buscarGeneroPorId = async function (genero_id) {
+const buscarGeneroId = async function (genero_id) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
@@ -220,7 +220,7 @@ const validarDadosGenero = async function (genero) {
 
 module.exports = {
     listarGeneros,
-    buscarGeneroPorId,
+    buscarGeneroId,
     inserirGenero,
     atualizarGenero,
     excluirGenero

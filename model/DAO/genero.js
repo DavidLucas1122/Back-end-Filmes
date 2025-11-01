@@ -104,7 +104,7 @@ const setUpdateGenre = async function (genero) {
     }
 }
 
-//Apaga um gênero no banc de dados
+//Apaga um gênero no banco de dados
 const setDeleteGenre = async function (id) {
     try {
         let sql = `delete from tbl_genero where genero_id = ${id}`

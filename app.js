@@ -22,6 +22,7 @@ app.use((request, response, next) => {
 const controllerFilme = require('./controller/filme/controller_filme.js')
 const controllerGenero = require('./controller/genero/controller_genero.js')
 const controllerClassificacao = require('./controller/classificacao/controller_classificacao.js')
+const controllerPersonagem = require ('./controller/personagem/controller_personagem.js')
 
 
 
@@ -117,7 +118,7 @@ app.get('/v1/locadora/genero/:id', cors(), async function (request, response) {
     let idGenero = request.params.id
 
     //Chama a função da controller para retornar o filme
-    let genero = await controllerGenero.buscarGeneroPorId(idGenero)
+    let genero = await controllerGenero.buscarGeneroId(idGenero)
 
     response.status(genero.status_code)
     response.json(genero)
@@ -238,7 +239,78 @@ app.delete('/v1/locadora/classificacao/:id', cors(), async function (request, re
     response.json(classificacao)
 })
 
+
+//END POINTS CRUD PERSONAGEM
+
+//Retorna a lista de personagem
+app.get('/v1/locadora/personagem/', cors(), async function (request, response) {
+    //Chama a função da controller para retornar todos os personagens
+    let personagem = await controllerPersonagem.listarPersonagens()
+
+    console.log(personagem)
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+//Retorna um personagem filtrando pelo ID
+app.get('/v1/locadora/personagem/:id', cors(), async function (request, response) {
+
+    //Recebe o ID enviado na requisição via parâmetro
+    let idPersonagem = request.params.id
+
+    //Chama a função da controller para retornar o personagem
+    let personagem = await controllerPersonagem.buscarPersonagemId(idPersonagem)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+//Recebe um novo personagem BD
+app.post('/v1/locadora/personagem/', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o personagem, anviamos os dados do body e o content-type
+    let personagem = await controllerPersonagem.inserirPersonagem(dadosBody, contentType)
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+
+app.put('/v1/locadora/personagem/:id', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe os dados do body
+    let dadosBody = request.body
+
+    //Recebe o id do personagem encaminhado pela URL
+    let idPersonagem = request.params.id
+
+    //Recebe o content-type da requisição 
+    let contentType = request.headers['content-type']
+
+    //Chama a função para atualizar o filme 
+    let personagem = await controllerPersonagem.atualizarPersonagem(dadosBody, idPersonagem, contentType)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+
+    console.log('>> contentType recebido:', contentType);
+    console.log('>> tipo (typeof):', typeof contentType);
+
+})
+
+app.delete('/v1/locadora/personagem/:id', cors(), async function (request, response) {
+    let id = request.params.id
+
+    // Chama a função da controller
+    let personagem = await controllerPersonagem.excluirPersonagem(id)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
 app.listen(PORT, function () {
     console.log('API aguardando requisições!!!')
 })
-
