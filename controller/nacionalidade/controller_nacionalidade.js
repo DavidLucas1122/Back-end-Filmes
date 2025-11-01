@@ -1,34 +1,33 @@
 /************************************************************************
  * Objetivo: Arquivo responsável pela manipulação entre o APP e a Model 
  *              (Validações, tratamento de dados, tratamento de erros, etc)
- * Data: 22/10/2025
+ * Data: 01/11/2025
  * Autor: David
  * Versão 1.0
 **************************************************************************/
 
 //Import do arquivo DAO para manipular o CRUD o BDz\
 const { json } = require('body-parser')
-const generoDAO = require('../../model/DAO/genero.js')
+const nacionalidadeDAO = require('../../model/DAO/nacionalidade.js')
 
 //import do arquivo que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
-//Listar os gêneros de filmes
-const listarGeneros = async function () {
+//Listar as nacionalidade
+const listarNacionalidades = async function () {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         //Chama a função do DAO para retornar a lista de gêneros de filmes
-        let result = await generoDAO.getSelectAllGenre()
-        console.log(result)
+        let result = await nacionalidadeDAO.getSelectAllNationality()
 
         if (result) {
             //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
             if (Array.isArray(result)) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.gender = result
+                MESSAGE.HEADER.response.nacionalidade = result
 
                 return MESSAGE.HEADER //200
             } else {
@@ -42,23 +41,23 @@ const listarGeneros = async function () {
     }
 }
 
-//Filtrar gêneros por ID
-const buscarGeneroId = async function (genero_id) {
+//Filtrar nacionalidades por ID
+const buscarNacionalidadeId = async function (nacionalidade_id) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         //Validação de campo obrigatório
-        if (genero_id !== '' && genero_id != null && genero_id != undefined && !isNaN(genero_id) && genero_id > 0) {
+        if (nacionalidade_id !== '' && nacionalidade_id != null && nacionalidade_id != undefined && !isNaN(nacionalidade_id) && nacionalidade_id > 0) {
             //Chamar a função para filtrar ID
-            let result = await generoDAO.getSelectByIdGenre(parseInt(genero_id))
+            let result = await nacionalidadeDAO.getSelectByIdNationality(parseInt(nacionalidade_id))
 
             if (result) {
                 console.log(result)
                 if (result.length > 0) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                    MESSAGE.HEADER.response.gender = result
+                    MESSAGE.HEADER.response.nationality = result
 
                     return MESSAGE.HEADER //200
                 } else {
@@ -78,31 +77,31 @@ const buscarGeneroId = async function (genero_id) {
     }
 }
 
-//Inserir um novo genero
-const inserirGenero = async function (genero, contentType) {
+//Inserir uma nova nacionalidade
+const inserirNacionalidade = async function (nacionalidade, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
-            //Função para validar genero
-            let validarDados = await validarDadosGenero(genero)
+            //Função para validar nacionalidade
+            let validarDados = await validarDadosNacionalidade(nacionalidade)
 
             if (!validarDados) {
 
-                //Função DAO para inserir genero
-                let result = await generoDAO.setInsertGenre(genero, contentType)
+                //Função DAO para inserir nacionalidade
+                let result = await nacionalidadeDAO.setInsertNationality(nacionalidade, contentType)
 
                 if (result) {
                     //Função para receber o ID gerado
-                    let lastIdGenre = await generoDAO.getSelectLastIdGenre()
+                    let lastIdNationality = await nacionalidadeDAO.getSelectLastIdNationality()
 
-                    if (lastIdGenre) {
-                        genero.id = lastIdGenre
+                    if (lastIdNationality) {
+                        genero.id = lastIdNationality
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
-                        MESSAGE.HEADER.response = genero
+                        MESSAGE.HEADER.response = nacionalidade
 
                         return MESSAGE.HEADER //201
                     } else {
@@ -123,8 +122,8 @@ const inserirGenero = async function (genero, contentType) {
     }
 }
 
-//Atualiza um genero filtrando pelo ID
-const atualizarGenero = async function (genero, id, contentType) {
+//Atualiza um nacionalidade filtrando pelo ID
+const atualizarNacionalidade = async function (nacionalidade, id, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -133,27 +132,27 @@ const atualizarGenero = async function (genero, id, contentType) {
 
 
             //Chama a função de validação dos dados de cadastro
-            let validarDados = await validarDadosGenero(genero)
+            let validarDados = await validarDadosNacionalidade(nacionalidade)
 
             if (!validarDados) {
 
                 //Chama a função para validar a consistência do ID e verificar se existe no banco de dados                
-                let validarID = await buscarGeneroId(id)
+                let validarID = await buscarNacionalidadeId(id)
 
                 //Verifica se o ID existe no BD, caso exista teremos o status 200  
                 if (validarID.status_code == 200) {
 
-                    //Adicionando o ID no JSON com os dados do genero
+                    //Adicionando o ID no JSON com os dados da nacionalidade
                     genero.id = parseInt(id)
 
-                    //Chama a função do DAO para atualizar um genero
-                    let result = await generoDAO.setUpdateGenre(genero)
+                    //Chama a função do DAO para atualizar uma nacionalidade
+                    let result = await nacionalidadeDAO.setUpdateNationality(nacionalidade)
 
                     if (result) {
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response = genero
+                        MESSAGE.HEADER.response = nacionalidade
 
                         return MESSAGE.HEADER //200
                     } else {
@@ -173,15 +172,15 @@ const atualizarGenero = async function (genero, id, contentType) {
     }
 }
 
-const excluirGenero = async function (id) {
+const excluirNacionalidade = async function (id) {
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-        let validarID = await buscarGeneroPorId(id)
+        let validarID = await buscarNacionalidadeId(id)
 
         if (validarID.status_code == 200) {
-            let result = await generoDAO.setDeleteGenre(id)
+            let result = await nacionalidadeDAO.setDeleteNationality(id)
 
             if (result) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
@@ -200,28 +199,27 @@ const excluirGenero = async function (id) {
     }
 }
 
-
-
-//Validar nome do genero
-const validarDadosGenero = async function (genero) {
+//Validar dados nacionalidade
+const validarDadosNacionalidade = async function (nacionalidade) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    if (genero.nome == '' || genero.nome == null || genero.nome == undefined || genero.nome.length > 100) {
+    if (nacionalidade.nome == '' || nacionalidade.nome == null || nacionalidade.nome == undefined || nacionalidade.nome.length > 100) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [NOME] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
-    } else {
+    } else if (nacionalidade.sigla == '' || nacionalidade.sigla == null || nacionalidade.sigla == undefined || nacionalidade.sigla.length > 5) {
+        MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [SIGLA] inválido!!!'
+        return MESSAGE.ERROR_REQUIRED_FIELDS
+    }   
+    else {
         return false
     }
 }
 
 
-
-
-
 module.exports = {
-    listarGeneros,
-    buscarGeneroId,
-    inserirGenero,
-    atualizarGenero,
-    excluirGenero
+    listarNacionalidades,
+    buscarNacionalidadeId,
+    inserirNacionalidade,
+    atualizarNacionalidade,
+    excluirNacionalidade
 }

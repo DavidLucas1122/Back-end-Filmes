@@ -1,21 +1,21 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de personagens no Banco de Dados MySQL
- * Data: 29/10/2025
+ * Objetivo: Arquivo responsável pela realização do CRUD de nacionalidades no Banco de Dados MySQL
+ * Data: 01/11/2025
  * Autor: David
  * Versão: 1.0
  *******************************************************************************************/
 
-//Import do arquivo DAO para manipular o CRUD o BD
+//Import da biblioteca do PrismaClient
 const { PrismaClient } = require('../../generated/prisma')
 
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
 
-//Retornar todos os personagens de filmes no banco de dados
-const getSelectAllCharacter = async function () {
+//Retornar todos as nacionalidades
+const getSelectAllNationality = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_personagem order by id desc`
+        let sql = `select * from tbl_nacionalidade order by nacionalidade_id desc`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -29,11 +29,11 @@ const getSelectAllCharacter = async function () {
     }
 }
 
-//Retornar personagem filtrando pelo ID
-const getSelectByIdCharacter = async function (personagem_id) {
+//Retornar nacionalidade filtrando pelo ID
+const getSelectByIdNationality = async function (nacionalidade_id) {
     try {
         //Script SQL
-        let sql = `select * from tbl_personagem where id = ${personagem_id}`
+        let sql = `select * from tbl_nacionalidade where nacionalidade_id = ${nacionalidade_id}`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -47,17 +47,17 @@ const getSelectByIdCharacter = async function (personagem_id) {
     }
 }
 
-//Retornar o ID do último personagem
-const getSelectLastIdCharacter = async function () {
+//Retornar o ID da última nacionalidade
+const getSelectLastIdNationality = async function () {
     try {
         //Script SQL
-        let sql = `select id from tbl_personagem order by id desc limit 1`
+        let sql = `select nacionalidade_id from tbl_nacionalidade order by nacionalidade_id desc limit 1`
 
         //Executa o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
 
         if (Array.isArray(result))
-            return Number(result[0].personagem_id)
+            return Number(result[0].nacionalidade_id)
         else
             return 0
     } catch (error) {
@@ -66,12 +66,13 @@ const getSelectLastIdCharacter = async function () {
     }
 }
 
-//Insere um personagem no BD
-const setInsertCharacter = async function (personagem) {
+//Insere um nacionalidade no BD
+const setInsertNationality = async function (nacionalidade) {
     try {
-        let sql = `insert into tbl_personagem (nome, genero, idade, foto)
+        let sql = `insert into tbl_nacionalidade (nome, sigla)
         values(
-            '${personagem.nome}''${personagem.genero}', '${personagem.idade}', '${personagem.foto}');`
+            '${nacionalidade.nome}'
+            '${nacionalidade.sigla}');`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -84,15 +85,13 @@ const setInsertCharacter = async function (personagem) {
     }
 }
 
-//Atualiza um personagem
-const setUpdateCharacter = async function (personagem) {
+//Atualiza uma nacionalidade no banco filtrando por ID
+const setUpdateNationality = async function (nacionalidade) {
     try {
-        let sql = `update tbl_personagem set
-                         nome = '${personagem.nome}'
-                         genero = '${personagem.genero}'
-                         idade = '${personagem.idade}'
-                         foto = '${personagem.foto}'
-                    where id = ${personagem.id}`
+        let sql = `update tbl_nacionalidade set
+                         nome = '${nacionalidade.nome}'
+                         sigla = '${nacionalidade.sigla}'
+                    where genero_id = ${nacionalidade.id}`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
@@ -106,10 +105,10 @@ const setUpdateCharacter = async function (personagem) {
     }
 }
 
-//Apaga um personagem no banco de dados
-const setDeleteCharacter = async function (id) {
+//Apaga uma nacionalidade no banco de dados
+const setDeleteNationality = async function (id) {
     try {
-        let sql = `delete from tbl_personagem where id = ${id}`
+        let sql = `delete from tbl_nacionalidade where nacionalidade_id = ${id}`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -122,12 +121,12 @@ const setDeleteCharacter = async function (id) {
     }
 }
 
-//exports das funções
+//Exports de funções
 module.exports = {
-    getSelectAllCharacter,
-    getSelectByIdCharacter,
-    getSelectLastIdCharacter,
-    setInsertCharacter,
-    setUpdateCharacter,
-    setDeleteCharacter
+    getSelectAllNationality,
+    getSelectByIdNationality,
+    getSelectLastIdNationality,
+    setInsertNationality,
+    setUpdateNationality,
+    setDeleteNationality
 }

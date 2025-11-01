@@ -23,7 +23,7 @@ const controllerFilme = require('./controller/filme/controller_filme.js')
 const controllerGenero = require('./controller/genero/controller_genero.js')
 const controllerClassificacao = require('./controller/classificacao/controller_classificacao.js')
 const controllerPersonagem = require ('./controller/personagem/controller_personagem.js')
-
+const controllerNacionalidade = require('./controller/nacionalidade/controller_nacionalidade.js')
 
 
 //Endpoint para CRUD de Filmes
@@ -290,7 +290,7 @@ app.put('/v1/locadora/personagem/:id', cors(), bodyParserJSON, async function (r
     //Recebe o content-type da requisição 
     let contentType = request.headers['content-type']
 
-    //Chama a função para atualizar o filme 
+    //Chama a função para atualizar o personagem
     let personagem = await controllerPersonagem.atualizarPersonagem(dadosBody, idPersonagem, contentType)
 
     response.status(personagem.status_code)
@@ -309,6 +309,75 @@ app.delete('/v1/locadora/personagem/:id', cors(), async function (request, respo
 
     response.status(personagem.status_code)
     response.json(personagem)
+})
+
+
+//END POINTS CRUD NACIONALIDADE
+
+//Retorna a lista de nacionalidades
+app.get('/v1/locadora/nacionalidade/', cors(), async function (request, response) {
+    //Chama a função da controller para retornar todos as nacionalidades
+    let nacionalidade = await controllerNacionalidade.listarNacionalidades()
+
+    response.status(nacionalidade.status_code)
+    response.json(nacionalidade)
+})
+
+//Retorna uma nacionalidadefiltrando pelo ID
+app.get('/v1/locadora/nacionalidade/:id', cors(), async function (request, response) {
+
+    //Recebe o ID enviado na requisição via parâmetro
+    let idNacionalidade = request.params.id
+
+    //Chama a função da controller para retornar a nacionalidade
+    let nacionalidade = await controllerNacionalidade.buscarNacionalidadeId(idNacionalidade)
+
+    response.status(nacionalidade.status_code)
+    response.json(nacionalidade)
+})
+
+//Recebe uma nova nacionalidade BD
+app.post('/v1/locadora/nacionalidade/', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir a nacionalidade, anviamos os dados do body e o content-type
+    let nacionalidade = await controllerNacionalidade.inserirNacionalidade(dadosBody, contentType)
+    response.status(nacionalidade.status_code)
+    response.json(nacionalidade)
+})
+
+app.put('/v1/locadora/nacionalidade/:id', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe os dados do body
+    let dadosBody = request.body
+
+    //Recebe o id do filme encaminhado pela URL
+    let idNacionalidade = request.params.id
+
+    //Recebe o content-type da requisição 
+    let contentType = request.headers['content-type']
+
+    //Chama a função para atualizar a nacionalidade
+    let nacionalidade = await controllerNacionalidade.atualizarNacionalidade(dadosBody, idNacionalidade, contentType)
+
+    response.status(nacionalidade.status_code)
+    response.json(nacionalidade)
+
+    console.log('>> contentType recebido:', contentType);
+    console.log('>> tipo (typeof):', typeof contentType);
+})
+
+app.delete('/v1/locadora/nacionalidade/:id', cors(), async function (request, response) {
+    let id = request.params.id
+
+    // Chama a função da controller
+    let nacionalidade = await controllerNacionalidade.excluirNacionalidade()
+
+    response.status(nacionalidade.status_code)
+    response.json(nacionalidade)
 })
 
 app.listen(PORT, function () {
