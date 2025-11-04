@@ -97,7 +97,7 @@ const inserirNacionalidade = async function (nacionalidade, contentType) {
                     let lastIdNationality = await nacionalidadeDAO.getSelectLastIdNationality()
 
                     if (lastIdNationality) {
-                        genero.id = lastIdNationality
+                        nacionalidade.id = lastIdNationality
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
@@ -143,7 +143,7 @@ const atualizarNacionalidade = async function (nacionalidade, id, contentType) {
                 if (validarID.status_code == 200) {
 
                     //Adicionando o ID no JSON com os dados da nacionalidade
-                    genero.id = parseInt(id)
+                    nacionalidade.id = parseInt(id)
 
                     //Chama a função do DAO para atualizar uma nacionalidade
                     let result = await nacionalidadeDAO.setUpdateNationality(nacionalidade)
@@ -168,6 +168,7 @@ const atualizarNacionalidade = async function (nacionalidade, id, contentType) {
             return MESSAGE.ERROR_CONTENT_TYPE //415
         }
     } catch (error) {
+        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }

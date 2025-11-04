@@ -57,7 +57,7 @@ const getSelectLastIdCharacter = async function () {
         let result = await prisma.$queryRawUnsafe(sql)
 
         if (Array.isArray(result))
-            return Number(result[0].personagem_id)
+            return Number(result[0].id)
         else
             return 0
     } catch (error) {
@@ -69,12 +69,20 @@ const getSelectLastIdCharacter = async function () {
 //Insere um personagem no BD
 const setInsertCharacter = async function (personagem) {
     try {
-        let sql = `insert into tbl_personagem (nome, genero, idade, foto)
-        values(
-            '${personagem.nome}''${personagem.genero}', '${personagem.idade}', '${personagem.foto}');`
+        
+        let sql = `insert into tbl_personagem (
+            nome, 
+            genero,
+            idade, 
+            imagem
+        ) values (
+            '${personagem.nome}',
+            '${personagem.genero}',
+            '${personagem.idade}',
+            '${personagem.imagem}'
+        )`
 
         let result = await prisma.$executeRawUnsafe(sql)
-
         if (result)
             return true
         else
@@ -88,10 +96,10 @@ const setInsertCharacter = async function (personagem) {
 const setUpdateCharacter = async function (personagem) {
     try {
         let sql = `update tbl_personagem set
-                         nome = '${personagem.nome}'
-                         genero = '${personagem.genero}'
-                         idade = '${personagem.idade}'
-                         foto = '${personagem.foto}'
+                         nome = '${personagem.nome}',
+                         genero = '${personagem.genero}',
+                         idade = '${personagem.idade}',
+                         imagem = '${personagem.imagem}'
                     where id = ${personagem.id}`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)

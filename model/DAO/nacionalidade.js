@@ -71,7 +71,7 @@ const setInsertNationality = async function (nacionalidade) {
     try {
         let sql = `insert into tbl_nacionalidade (nome, sigla)
         values(
-            '${nacionalidade.nome}'
+            '${nacionalidade.nome}',
             '${nacionalidade.sigla}');`
 
         let result = await prisma.$executeRawUnsafe(sql)
@@ -89,13 +89,12 @@ const setInsertNationality = async function (nacionalidade) {
 const setUpdateNationality = async function (nacionalidade) {
     try {
         let sql = `update tbl_nacionalidade set
-                         nome = '${nacionalidade.nome}'
+                         nome = '${nacionalidade.nome}',
                          sigla = '${nacionalidade.sigla}'
-                    where genero_id = ${nacionalidade.id}`
+                    where nacionalidade_id = ${nacionalidade.id}`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
-
         if (result)
             return true
         else

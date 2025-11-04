@@ -24,6 +24,7 @@ const controllerGenero = require('./controller/genero/controller_genero.js')
 const controllerClassificacao = require('./controller/classificacao/controller_classificacao.js')
 const controllerPersonagem = require ('./controller/personagem/controller_personagem.js')
 const controllerNacionalidade = require('./controller/nacionalidade/controller_nacionalidade.js')
+const controllerDiretor = require('./controller/diretor/controller_diretor.js')
 
 
 //Endpoint para CRUD de Filmes
@@ -296,9 +297,6 @@ app.put('/v1/locadora/personagem/:id', cors(), bodyParserJSON, async function (r
     response.status(personagem.status_code)
     response.json(personagem)
 
-    console.log('>> contentType recebido:', contentType);
-    console.log('>> tipo (typeof):', typeof contentType);
-
 })
 
 app.delete('/v1/locadora/personagem/:id', cors(), async function (request, response) {
@@ -374,10 +372,48 @@ app.delete('/v1/locadora/nacionalidade/:id', cors(), async function (request, re
     let id = request.params.id
 
     // Chama a função da controller
-    let nacionalidade = await controllerNacionalidade.excluirNacionalidade()
+    let nacionalidade = await controllerNacionalidade.excluirNacionalidade(id)
 
     response.status(nacionalidade.status_code)
     response.json(nacionalidade)
+})
+
+//ENDPOINTS CRUD DIRETORES
+
+//Retorna a lista de diretores
+app.get('/v1/locadora/diretor/', cors(), async function (request, response) {
+    //Chama a função da controller para retornar todos os diretores
+    let diretor = await controllerDiretor.listarDiretores()
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+//Retorna um filme filtrando pelo ID
+app.get('/v1/locadora/diretor/:id', cors(), async function (request, response) {
+
+    //Recebe o ID enviado na requisição via parâmetro
+    let idDiretor = request.params.id
+
+    //Chama a função da controller para retornar o filme
+    let diretor = await controllerDiretor.buscarDiretorId(idDiretor)
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+//Novo diretor
+app.post('/v1/locadora/diretor/', cors(), bodyParserJSON, async function (request, response) {
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o diretor, anviamos os dados do body e o content-type
+    let diretor = await controllerDiretor.inserirDiretor(dadosBody, contentType)
+    response.status(diretor.status_code)
+    response.json(diretor)
 })
 
 app.listen(PORT, function () {
