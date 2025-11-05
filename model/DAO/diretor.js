@@ -70,51 +70,27 @@ const getSelectLastIdDirector = async function () {
 //Insere um diretor no BD
 const setInsertDirector = async function (diretor) {
     try {
-        console.log(diretor)
+
         if (diretor.data_falecimento == null) {
-            let sql = `insert into tbl_diretor (
-                nome, 
-                data_nascimento,
-                data_falecimento,
-                genero,
-                foto
-            ) values (
-                '${diretor.nome}',
-                '${diretor.data_nascimento}',
-                 null,
-                '${diretor.genero}',
-                '${diretor.foto}'
-            )`
+            let sql = `insert into tbl_diretor (nome, data_nascimento, data_falecimento, genero, foto)
+                    values('${diretor.nome}', '${diretor.data_nascimento}', ${diretor.data_falecimento}, '${diretor.genero}', '${diretor.foto}')`
+            let result = await prisma.$queryRawUnsafe(sql)
 
-            let result = await prisma.$executeRawUnsafe(sql)
+            if (result)
+                return true
+            else
+                return false
+        } else {
+            let sql = `insert into tbl_diretor (nome, data_nascimento, data_falecimento, genero, foto)
+                        values('${diretor.nome}', '${diretor.data_nascimento}', '${diretor.data_falecimento}', '${diretor.genero}', '${diretor.foto}' )`
+            let result = await prisma.$queryRawUnsafe(sql)
 
             if (result)
                 return true
             else
                 return false
         }
-        else{
-            let sql = `insert into tbl_diretor (
-                nome, 
-                data_nascimento,
-                data_falecimento,
-                genero,
-                foto
-            ) values (
-                '${diretor.nome}',
-                '${diretor.data_nascimento}',
-                '${diretor.data_falecimento}',
-                '${diretor.genero}',
-                '${diretor.foto}'
-            )`
 
-            let result = await prisma.$executeRawUnsafe(sql)
-
-            if (result)
-                return true
-            else
-                return false
-        }
     } catch (error) {
         return false
     }
