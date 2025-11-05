@@ -42,15 +42,15 @@ const listarNacionalidades = async function () {
 }
 
 //Filtrar nacionalidades por ID
-const buscarNacionalidadeId = async function (nacionalidade_id) {
+const buscarNacionalidadeId = async function (id) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         //Validação de campo obrigatório
-        if (nacionalidade_id !== '' && nacionalidade_id != null && nacionalidade_id != undefined && !isNaN(nacionalidade_id) && nacionalidade_id > 0) {
+        if (id !== '' && id != null && id != undefined && !isNaN(id) && id > 0) {
             //Chamar a função para filtrar ID
-            let result = await nacionalidadeDAO.getSelectByIdNationality(parseInt(nacionalidade_id))
+            let result = await nacionalidadeDAO.getSelectByIdNationality(parseInt(id))
 
             if (result) {
                 console.log(result)

@@ -71,3 +71,5 @@ router.delete('/:id', cors(), async function (request, response) {
     response.status(genero.status_code)
     response.json(genero)
 })
+
+module.exports = router

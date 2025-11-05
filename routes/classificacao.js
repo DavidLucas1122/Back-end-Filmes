@@ -68,3 +68,5 @@ router.delete('/:id', cors(), async function (request, response) {
     response.status(classificacao.status_code)
     response.json(classificacao)
 })
+
+module.exports = router

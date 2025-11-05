@@ -1,5 +1,5 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL
+ * Objetivo: Arquivo responsável pela realização do CRUD de diretores no Banco de Dados MySQL
  * Data: 04/11/2025
  * Autor: David
  * Versão: 1.0
@@ -70,20 +70,39 @@ const getSelectLastIdDirector = async function () {
 //Insere um diretor no BD
 const setInsertDirector = async function (diretor) {
     try {
-
         if (diretor.data_falecimento == null) {
-            let sql = `insert into tbl_diretor (nome, data_nascimento, data_falecimento, genero, foto)
-                    values('${diretor.nome}', '${diretor.data_nascimento}', ${diretor.data_falecimento}, '${diretor.genero}', '${diretor.foto}')`
-            let result = await prisma.$queryRawUnsafe(sql)
+            let sql = `insert into tbl_diretor (
+            nome,
+            data_nascimento,
+            data_falecimento,
+            genero, 
+            foto
+            )
+            values('${diretor.nome}',
+            '${diretor.data_nascimento}',
+            ${diretor.data_falecimento}, 
+            '${diretor.genero}',
+            '${diretor.foto}')`
 
+            let result = await prisma.$executeRawUnsafe(sql)
             if (result)
                 return true
             else
                 return false
         } else {
-            let sql = `insert into tbl_diretor (nome, data_nascimento, data_falecimento, genero, foto)
-                        values('${diretor.nome}', '${diretor.data_nascimento}', '${diretor.data_falecimento}', '${diretor.genero}', '${diretor.foto}' )`
-            let result = await prisma.$queryRawUnsafe(sql)
+            let sql = `insert into tbl_diretor (
+            nome,
+            data_nascimento,
+            data_falecimento,
+            genero,
+            foto)
+            values('${diretor.nome}',
+            '${diretor.data_nascimento}',
+            '${diretor.data_falecimento}',
+            '${diretor.genero}',
+            '${diretor.foto}')`
+            
+            let result = await prisma.$executeRawUnsafe(sql)
 
             if (result)
                 return true
@@ -92,6 +111,7 @@ const setInsertDirector = async function (diretor) {
         }
 
     } catch (error) {
+        return error
         return false
     }
 }

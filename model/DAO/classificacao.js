@@ -1,5 +1,5 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL
+ * Objetivo: Arquivo responsável pela realização do CRUD de classificações no Banco de Dados MySQL
  * Data: 29/10/2025
  * Autor: David
  * Versão: 1.0

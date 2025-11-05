@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const controllerGenero = require('../controller/personagem/controller_personagem.js')
+const controllerPersonagem = require('../controller/personagem/controller_personagem.js')
 
 const bodyParserJSON = bodyParser.json()
 
@@ -63,7 +63,7 @@ router.put('/:id', cors(), bodyParserJSON, async function (request, response) {
 })
 
 //Deleta um pesonagem
-app.delete('/:id', cors(), async function (request, response) {
+router.delete('/:id', cors(), async function (request, response) {
     let id = request.params.id
 
     // Chama a função da controller
@@ -72,3 +72,6 @@ app.delete('/:id', cors(), async function (request, response) {
     response.status(personagem.status_code)
     response.json(personagem)
 })
+
+
+module.exports = router

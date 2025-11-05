@@ -43,7 +43,6 @@ const listarDiretores = async function () {
 const buscarDiretorId = async function (diretor_id) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-
     try {
         //Validação de campo obrigatório
         if (diretor_id !== '' && diretor_id != null && diretor_id != undefined && !isNaN(diretor_id) && diretor_id > 0) {
@@ -75,7 +74,7 @@ const buscarDiretorId = async function (diretor_id) {
 }
 
 //Insere um novo diretor
-const inserirDiretor = async function (diretor, contentType) {
+const inserirDiretor = async function (diretor, contentType) { 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -87,7 +86,6 @@ const inserirDiretor = async function (diretor, contentType) {
 
                 //Chama a função do DAO para inserir um novo diretor
                 let result = await diretorDAO.setInsertDirector(diretor, contentType)
-
 
                 if (result) {
                     //Chama uma função para receber o ID gerado no BD
@@ -122,7 +120,7 @@ const inserirDiretor = async function (diretor, contentType) {
 
 //Atualizar Diretor filtrando pelo ID
 const atualizarDiretor = async function (diretor, id, contentType) {
-
+    
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -135,7 +133,7 @@ const atualizarDiretor = async function (diretor, id, contentType) {
             if (!validarDados) {
 
                 //Chama a função para validar a consistência do ID e verificar se existe no banco de dados                
-                let validarID = await buscarDiretorId()
+                let validarID = await buscarDiretorId(id)
 
                 //Verifica se o ID existe no BD, caso exista teremos o status 200  
                 if (validarID.status_code == 200) {

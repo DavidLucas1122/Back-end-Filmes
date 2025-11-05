@@ -30,7 +30,7 @@ router.get('/:id', cors(), async function (request, response) {
 })
 
 //Novo diretor
-router.post('/v1/locadora/diretor/', cors(), bodyParserJSON, async function (request, response) {
+router.post('/', cors(), bodyParserJSON, async function (request, response) {
     //Recebe o objeto JSON pelo body da requisição
     let dadosBody = request.body
 
@@ -43,13 +43,13 @@ router.post('/v1/locadora/diretor/', cors(), bodyParserJSON, async function (req
     response.json(diretor)
 })
 
+//Atualizar Diretor
 router.put('/:id', cors(), bodyParserJSON, async function (request, response) {
     //Recebe os dados do body
     let dadosBody = request.body
 
     //Recebe o id do filme encaminhado pela URL
     let idDiretor = request.params.id
-
     //Recebe o content-type da requisição 
     let contentType = request.headers['content-type']
 
@@ -69,3 +69,5 @@ router.delete('/:id', cors(), async function (request, response) {
     response.status(diretor.status_code)
     response.json(diretor)
 })
+
+module.exports = router
