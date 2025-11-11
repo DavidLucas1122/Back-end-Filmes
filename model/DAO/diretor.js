@@ -111,7 +111,6 @@ const setInsertDirector = async function (diretor) {
         }
 
     } catch (error) {
-        return error
         return false
     }
 }

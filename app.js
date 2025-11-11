@@ -1,6 +1,10 @@
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const swaggerUi = require('swagger-ui-express')
+const swaggerJsdoc = require('swagger-jsdoc')
+
+
 
 //Cria um objeto no formato JSON para receber os dados do body (POST E PUT)
 const bodyParserJSON = bodyParser.json()
@@ -32,6 +36,22 @@ app.use('/v1/locadora/classificacao', classificacaoRoutes)
 app.use('/v1/locadora/personagem', personagemRoutes)
 app.use('/v1/locadora/nacionalidade', nacionalidadeRoutes)
 app.use('/v1/locadora/diretor', diretorRoutes)
+
+// Swagger
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Locadora',
+      version: '1.0.0',
+      description: 'Documentação da API de Locadora de Filmes',
+    },
+  },
+  apis: ['./routes/*.js'], // Caminho onde estão as rotas documentadas
+}
+
+const swaggerSpec = swaggerJsdoc(options)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.listen(PORT, function () {
     console.log('API aguardando requisições!!!')
