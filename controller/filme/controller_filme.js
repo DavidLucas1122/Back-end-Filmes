@@ -21,14 +21,21 @@ const listarFilmes = async function () {
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-
     try {
         //Chama a função do DAO para retornar a lista de filmes
         let result = await filmeDAO.getSelectAllFilms()
 
         if (result) {
-            //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
-            if (Array.isArray(result)) {
+            if (result.length > 0) {
+
+                // Processamento para adicionar os generos em cada filme
+                for(filme of result) {
+                    let resultGeneros = await controllerFilmeGenero.listarGenerosIdFilme(filme.id)
+                    console.log(resultGeneros)
+                    if(resultGeneros.status_code == 200)
+                        filme.genero = resultGeneros.response.film_genre
+                }
+
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
                 MESSAGE.HEADER.response.films = result
@@ -41,6 +48,7 @@ const listarFilmes = async function () {
             return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
         }
     } catch (error) {
+        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
@@ -105,21 +113,40 @@ const inserirFilme = async function (filme, contentType) {
                     if (lastIdFilme){
 
                         //Processamento para inserir dados na tabela de
-                        //  relação etre filme e genero
+                        //  relação entre filme e genero
 
                         //Repetição para pegar cada gênero e enviar para o DAO do filmeGenero
-                        filme.genero.forEach(async function (genero) {
-                            let filmeGenero = {id_filme: lastIdFilme, id_genero: genero.id}
+                        for(genero of filme.genero) {
+                            let filmeGenero = {
+                                id_filme: lastIdFilme,
+                                id_genero: genero.id
+                            }
                             let resultFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero, contentType)
 
-                            console.log(resultFilmeGenero)
-                        })
+                            if (resultFilmeGenero.status_code != 201){
+                                return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                            }
+                        }
 
                     filme.id                    =   lastIdFilme
 
                     MESSAGE.HEADER.status       =   MESSAGE.SUCCESS_CREATED_ITEM.status
                     MESSAGE.HEADER.status_code  =   MESSAGE.SUCCESS_CREATED_ITEM.status_code
                     MESSAGE.HEADER.message      =   MESSAGE.SUCCESS_CREATED_ITEM.message
+
+                    //Processamento para trazer dados dos gêneros cadastrados na tabela de relação
+
+                    //Apaga o atriburo genero que chegou no post apenas com IDs
+                    delete filme.genero
+
+                    //Pesquisa no banco de dados quais gêneros e os seus dados que foram inseridos na tabela de relação
+                    let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(lastIdFilme)
+
+                    //Adiciona novamente o atributo genero com todas as informações do genero (id, nome)
+                    filme.genero = resultGenerosFilme.response.film_genre
+
+
+
                     MESSAGE.HEADER.response     =   filme
 
                     return MESSAGE.HEADER //201
