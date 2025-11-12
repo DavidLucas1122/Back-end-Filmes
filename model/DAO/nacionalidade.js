@@ -25,7 +25,7 @@ const getSelectAllNationality = async function () {
         else
             return false
     } catch (error) {
-        return error
+        return false
     }
 }
 
@@ -43,7 +43,7 @@ const getSelectByIdNationality = async function (nacionalidade_id) {
         else
             return false
     } catch (error) {
-        return error
+        return false
     }
 }
 
@@ -62,7 +62,7 @@ const getSelectLastIdNationality = async function () {
             return 0
     } catch (error) {
         console.log(error)
-        return error
+        return false
     }
 }
 

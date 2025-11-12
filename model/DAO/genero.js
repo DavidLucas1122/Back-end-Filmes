@@ -26,7 +26,7 @@ const getSelectAllGenre = async function () {
         else
             return false
     } catch (error) {
-        return error
+        return false
     }
 }
 
@@ -44,7 +44,7 @@ const getSelectByIdGenre = async function (genero_id) {
         else
             return false
     } catch (error) {
-        return error
+        return false
     }
 }
 
@@ -60,10 +60,10 @@ const getSelectLastIdGenre = async function () {
         if (Array.isArray(result))
             return Number(result[0].genero_id)
         else
-            return 0
+            return false
     } catch (error) {
         console.log(error)
-        return error
+        return false
     }
 }
 

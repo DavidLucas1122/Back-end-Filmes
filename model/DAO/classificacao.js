@@ -24,10 +24,10 @@ const getSelectAllRatings = async function () {
         if (Array.isArray(result))
             return result
         else
-            return 0
+            return false
     } catch (error) {
         console.log(error)
-        return 2
+        return false
     }
 }
 
@@ -62,7 +62,7 @@ const getSelectLastIdRating = async function () {
             return Number(result[0].classificacao_id)
         }
         else
-            return 0
+            return false
     } catch (error) {
         return error
     }

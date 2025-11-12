@@ -82,7 +82,7 @@ const getSelectFilmsByIdGenre = async function (idGenero) {
                                 on tbl_filme.id = tbl_filme_genero.id_filme
                             inner join tbl_genero
                                 on tbl_genero.genero_id = tbl_filme_genero.id_genero
-                        where tbl_filme.id = ${idGenero}`
+                        where tbl_genero.genero_id = ${idGenero};`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -92,7 +92,7 @@ const getSelectFilmsByIdGenre = async function (idGenero) {
         else
             return false
     } catch (error) {
-        return error
+        return false
     }
 }
 
@@ -108,10 +108,10 @@ const getSelectLastIdFilmGenre = async function () {
         if (Array.isArray(result))
             return Number(result[0].id)
         else
-            return 0
+            return false
     } catch (error) {
         console.log(error)
-        return error
+        return false
     }
 }
 
@@ -169,15 +169,47 @@ const setDeleteFilmsGenres = async function (id) {
     }
 }
 
+//Apaga um gênero no banco de dados
+const setDeleteFilmsGenresByIdFilm = async function (idFilme) {
+    try {
+        let sql = `delete from tbl_filme_genero where id_filme = ${idFilme}`
 
-//Exports de funções
-module.exports = {
-    getSelectAllFilmsGenres,
-    getSelectByIdFilmGenre,
-    getSelectFilmsByIdGenre,
-    getSelectGenresByIdFilm,
-    getSelectLastIdFilmGenre,
-    setInsertFilmsGenres,
-    setUpdateFilmsGenres,
-    setDeleteFilmsGenres
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
 }
+
+const setDeleteFilmsGenresByIdGenre = async function (idGenero) {
+    try {
+        let sql = `delete from tbl_filme_genero where id_genero = ${idGenero}`
+
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if (result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
+    //Exports de funções
+    module.exports = {
+        getSelectAllFilmsGenres,
+        getSelectByIdFilmGenre,
+        getSelectFilmsByIdGenre,
+        getSelectGenresByIdFilm,
+        getSelectLastIdFilmGenre,
+        setInsertFilmsGenres,
+        setUpdateFilmsGenres,
+        setDeleteFilmsGenres,
+        setDeleteFilmsGenresByIdFilm,
+        setDeleteFilmsGenresByIdGenre
+    }

@@ -60,10 +60,10 @@ const getSelectAllFilms = async function () {
         if (Array.isArray(result))
             return result
         else
-            return 0
+            return false
     } catch (error) {
         console.log(error)
-        return 2
+        return false
     }
 }
 
@@ -97,10 +97,10 @@ const getSelectLastIdFilm = async function () {
         if (Array.isArray(result))
             return Number(result[0].id)
         else
-            return 0
+            return false
     } catch (error) {
         console.log(error)
-        return 2
+        return false
     }
 }
 

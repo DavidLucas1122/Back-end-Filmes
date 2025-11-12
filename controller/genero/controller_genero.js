@@ -9,6 +9,9 @@
 //Import do arquivo DAO para manipular o CRUD o BDz\
 const generoDAO = require('../../model/DAO/genero.js')
 
+//Import da controller filmeGenero (tabela de relação)
+const controllerFilmeGenero = require('../filme/controller_filme_genero.js')
+
 //import do arquivo que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
@@ -20,11 +23,17 @@ const listarGeneros = async function () {
     try {
         //Chama a função do DAO para retornar a lista de gêneros de filmes
         let result = await generoDAO.getSelectAllGenre()
-        console.log(result)
 
         if (result) {
-            //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
-            if (Array.isArray(result)) {
+            if (result.length > 0) {
+                // Processamento para adicionar os generos em cada filme
+                for (genero of result) {
+                    let resultFilmes = await controllerFilmeGenero.listarFilmesIdGenero(genero.genero_id)
+
+                    if (resultFilmes.status_code == 200)
+                        genero.filme = resultFilmes.response.film_genre
+                }
+
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
                 MESSAGE.HEADER.response.gender = result
@@ -53,8 +62,15 @@ const buscarGeneroId = async function (genero_id) {
             let result = await generoDAO.getSelectByIdGenre(parseInt(genero_id))
 
             if (result) {
-                console.log(result)
                 if (result.length > 0) {
+                    for (genero of result) {
+                        let resultFilmes = await controllerFilmeGenero.listarFilmesIdGenero(genero_id)
+
+                        if (resultFilmes.status_code == 200)
+                            genero.filme = resultFilmes.response.film_genre
+                    }
+
+
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
                     MESSAGE.HEADER.response.gender = result
@@ -72,7 +88,6 @@ const buscarGeneroId = async function (genero_id) {
             return MESSAGE.ERROR_REQUIRED_FIELDS //400
         }
     } catch (error) {
-        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
@@ -97,6 +112,7 @@ const inserirGenero = async function (genero, contentType) {
                     let lastIdGenre = await generoDAO.getSelectLastIdGenre()
 
                     if (lastIdGenre) {
+
                         genero.id = lastIdGenre
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
@@ -177,19 +193,24 @@ const excluirGenero = async function (id) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-        let validarID = await buscarGeneroPorId(id)
+        let validarID = await buscarGeneroId(id)
 
         if (validarID.status_code == 200) {
-            let result = await generoDAO.setDeleteGenre(id)
 
-            if (result) {
-                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
-                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
-                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+            let resultDeleteFilmeGenero = await controllerFilmeGenero.excluirFilmeGeneroIdGenero(id)
 
-                return MESSAGE.HEADER //200
-            } else {
-                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+            if (resultDeleteFilmeGenero) {
+                let result = await generoDAO.setDeleteGenre(id)
+
+                if (result) {
+                    MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+                    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+                    MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+
+                    return MESSAGE.HEADER //200
+                } else {
+                    return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+                }
             }
         } else {
             validarID

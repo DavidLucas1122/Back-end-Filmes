@@ -1,6 +1,6 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de diretores no Banco de Dados MySQL
- * Data: 04/11/2025
+ * Objetivo: Arquivo responsável pela realização do CRUD de atores no Banco de Dados MySQL
+ * Data: 12/11/2025
  * Autor: David
  * Versão: 1.0
  *******************************************************************************************/
@@ -11,11 +11,29 @@ const { PrismaClient } = require('../../generated/prisma')
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
 
-//Retorna todos os diretores do banco de dados
-const getSelectAllDirector = async function () {
+//Retorna todos os atores do banco de dados
+const getSelectAllActor = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_diretor order by diretor_id desc`
+        let sql = `select * from tbl_ator order by ator_id desc`
+
+        //Executa no BD o scrpt SQL
+        let result = await prisma.$queryRawUnsafe(sql)
+
+        if (Array.isArray(result))
+            return result
+        else
+            return 0
+    } catch (error) {
+        return false
+    }
+}
+
+//Retorna um ator filtrando pelo ID no banco de dados
+const getSelectByIdActor = async function (id) {
+    try {
+        //Script SQL
+        let sql = `select * from tbl_ator where ator_id=${id}`
 
         //Executa no BD o scrpt SQL
         let result = await prisma.$queryRawUnsafe(sql)
@@ -29,47 +47,27 @@ const getSelectAllDirector = async function () {
     }
 }
 
-//Retorna um diretor filtrando pelo ID no banco de dados
-const getSelectByIdDirector = async function (id) {
+const getSelectLastIdActor = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_diretor where diretor_id=${id}`
+        let sql = `select ator_id from tbl_ator order by ator_id desc limit 1`
 
         //Executa no BD o scrpt SQL
         let result = await prisma.$queryRawUnsafe(sql)
 
         if (Array.isArray(result))
-            return result
+            return Number(result[0].ator_id)
         else
             return false
     } catch (error) {
-        // console.log(error)
         return false
     }
 }
 
-const getSelectLastIdDirector = async function () {
+//Insere um ator no BD
+const setInsertActor = async function (ator) {
     try {
-        //Script SQL
-        let sql = `select diretor_id from tbl_diretor order by diretor_id desc limit 1`
-
-        //Executa no BD o scrpt SQL
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        if (Array.isArray(result))
-            return Number(result[0].diretor_id)
-        else
-            return false
-    } catch (error) {
-        console.log(error)
-        return false
-    }
-}
-
-//Insere um diretor no BD
-const setInsertDirector = async function (diretor) {
-    try {
-        if (diretor.data_falecimento == null) {
+        if (ator.data_falecimento == null) {
             let sql = `insert into tbl_diretor (
             nome,
             data_nascimento,

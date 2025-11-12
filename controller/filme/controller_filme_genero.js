@@ -112,7 +112,6 @@ const listarGenerosIdFilme = async function (idFilme) {
 const listarFilmesIdGenero = async function (idGenero) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-
     try {
         //Validação de campo obrigatório
         if (idGenero !== '' && idGenero != null && idGenero != undefined && !isNaN(idGenero) && idGenero > 0) {
@@ -264,6 +263,51 @@ const excluirFilmeGenero = async function (id) {
     }
 }
 
+const excluirFilmeGeneroIdFilme = async function (idFilme) {
+
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+
+    try {
+        let result = await filmeGeneroDAO.setDeleteFilmsGenresByIdFilm(Number(idFilme))
+
+        if (result) {
+            MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+            MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+
+            delete MESSAGE.HEADER.response
+            return MESSAGE.HEADER //200
+        } else {
+            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+        }
+    } catch (error) {
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+const excluirFilmeGeneroIdGenero = async function (idGenero) {
+
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+
+    try {
+        let result = await filmeGeneroDAO.setDeleteFilmsGenresByIdGenre(Number(idGenero))
+
+        if (result) {
+            MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+            MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+
+            delete MESSAGE.HEADER.response
+            return MESSAGE.HEADER //200
+        } else {
+            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+        }
+    } catch (error) {
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
 
 //Validar nome do genero
 const validarDadosFilmeGenero = async function (filmeGenero) {
@@ -292,5 +336,7 @@ module.exports = {
     atualizarFilmeGenero,
     excluirFilmeGenero,
     listarFilmesIdGenero,
-    listarGenerosIdFilme
+    listarGenerosIdFilme,
+    excluirFilmeGeneroIdFilme,
+    excluirFilmeGeneroIdGenero
 }
