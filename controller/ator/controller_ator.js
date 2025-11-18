@@ -1,31 +1,31 @@
 /************************************************************************
  * Objetivo: Arquivo responsável pela manipulação entre o APP e a Model 
  *              (Validações, tratamento de dados, tratamento de erros, etc)
- * Data: 04/11/2025
+ * Data: 18/11/2025
  * Autor: David
  * Versão 1.0
 **************************************************************************/
 
 //Import do arquivo DAO para manipular o CRUD o BD
 const { json } = require('body-parser')
-const diretorDAO = require('../../model/DAO/diretor.js')
+const atorDAO = require('../../model/DAO/ator.js')
 
 //import do arquivo que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
-//Listar diretores
-const listarDiretores = async function () {
+//Listar atores
+const listarAtores = async function () {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         //Chama a função do DAO para retornar a lista de diretores
-        let result = await diretorDAO.getSelectAllDirector()
+        let result = await atorDAO.getSelectAllActor()
         if (result) {
             //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
             if (result.length > 0) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.director = result
+                MESSAGE.HEADER.response.actor = result
 
                 return MESSAGE.HEADER //200
             } else {
@@ -39,15 +39,15 @@ const listarDiretores = async function () {
     }
 }
 
-//Filtrar diretor pelo ID
-const buscarDiretorId = async function (diretor_id) {
+//Filtrar ator pelo ID
+const buscarAtorId = async function (ator_id) {
     //Cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
     try {
         //Validação de campo obrigatório
-        if (diretor_id !== '' && diretor_id != null && diretor_id != undefined && !isNaN(diretor_id) && diretor_id > 0) {
+        if (ator_id !== '' && ator_id != null && ator_id != undefined && !isNaN(ator_id) && ator_id > 0) {
             //Chamar a função para filtrar ID
-            let result = await diretorDAO.getSelectByIdDirector(parseInt(diretor_id))
+            let result = await atorDAO.getSelectByIdActor(parseInt(ator_id))
 
             if (result) {
                 if (result.length > 0) {
