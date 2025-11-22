@@ -61,13 +61,13 @@ router.get('/', cors(), async function (request, response) {
  *         description: Erro interno do servidor
  */
 
-//Retorna um filme filtrando pelo ID
+//Retorna um diretor filtrando pelo ID
 router.get('/:id', cors(), async function (request, response) {
 
     //Recebe o ID enviado na requisição via parâmetro
     let idDiretor = request.params.id
 
-    //Chama a função da controller para retornar o filme
+    //Chama a função da controller para retornar o diretor
     let diretor = await controllerDiretor.buscarDiretorId(idDiretor)
 
     response.status(diretor.status_code)
@@ -177,12 +177,12 @@ router.put('/:id', cors(), bodyParserJSON, async function (request, response) {
     //Recebe os dados do body
     let dadosBody = request.body
 
-    //Recebe o id do filme encaminhado pela URL
+    //Recebe o id do diretor encaminhado pela URL
     let idDiretor = request.params.id
     //Recebe o content-type da requisição 
     let contentType = request.headers['content-type']
 
-    //Chama a função para atualizar a nacionalidade
+    //Chama a função para atualizar o diretor
     let diretor = await controllerDiretor.atualizarDiretor(dadosBody, idDiretor, contentType)
 
     response.status(diretor.status_code)

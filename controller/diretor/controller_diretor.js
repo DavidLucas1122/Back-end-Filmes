@@ -10,6 +10,9 @@
 const { json } = require('body-parser')
 const diretorDAO = require('../../model/DAO/diretor.js')
 
+//Import da controller filmeDiretor (tabela de relação)
+const controllerFilmeDiretor = require('../filme/controller_filme_diretor.js')
+
 //import do arquivo que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
@@ -20,8 +23,15 @@ const listarDiretores = async function () {
     try {
         //Chama a função do DAO para retornar a lista de diretores
         let result = await diretorDAO.getSelectAllDirector()
+
         if (result) {
-            //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
+            for (let diretor of result) {
+                let resultFilmes = await controllerFilmeDiretor.listarFilmesIdDiretor(diretor.diretor_id)
+
+                if (resultFilmes.status_code == 200)
+                    diretor.filme = resultFilmes.response.film_director
+            }
+
             if (result.length > 0) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
@@ -51,6 +61,13 @@ const buscarDiretorId = async function (diretor_id) {
 
             if (result) {
                 if (result.length > 0) {
+                    for (let diretor of result) {
+                        let resultFilmes = await controllerDiretorAtor.listarFilmesIdDiretor(diretor_id)
+
+                        if (resultFilmes.status_code == 200)
+                            diretor.filme = resultFilmes.response.film_director
+                    }
+
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
                     MESSAGE.HEADER.response.director = result
@@ -68,13 +85,12 @@ const buscarDiretorId = async function (diretor_id) {
             return MESSAGE.ERROR_REQUIRED_FIELDS //400
         }
     } catch (error) {
-        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
 //Insere um novo diretor
-const inserirDiretor = async function (diretor, contentType) { 
+const inserirDiretor = async function (diretor, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -113,14 +129,13 @@ const inserirDiretor = async function (diretor, contentType) {
             return MESSAGE.ERROR_CONTENT_TYPE //415
         }
     } catch (error) {
-        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
 //Atualizar Diretor filtrando pelo ID
 const atualizarDiretor = async function (diretor, id, contentType) {
-    
+
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -155,7 +170,7 @@ const atualizarDiretor = async function (diretor, id, contentType) {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
                 } else {
-                    return validarID //retorno da função de buscarFilmeID (400 ou 404 ou 500)
+                    return validarID //retorno da função de buscarDiretorId (400 ou 404 ou 500)
                 }
             } else {
                 return validarDados //400
@@ -179,16 +194,20 @@ const excluirDiretor = async function (id) {
 
         if (validarID.status_code == 200) {
 
-            let result = await diretorDAO.setDeleteDirector(id)
+            let resultDeleteFilmeDiretor = await controllerDiretorAtor.excluirFilmeDiretorIdDiretor(id)
 
-            if (result) {
-                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
-                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
-                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+            if (resultDeleteFilmeDiretor) {
+                let result = await diretorDAO.setDeleteDirector(id)
 
-                return MESSAGE.HEADER //200
-            } else {
-                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                if (result) {
+                    MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+                    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+                    MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+
+                    return MESSAGE.HEADER //200
+                } else {
+                    return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                }
             }
         } else {
             return validarID

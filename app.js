@@ -24,11 +24,12 @@ app.use((request, response, next) => {
 
 //Import das rotas
 const filmeRoutes = require('./routes/filme.js')
-const generoRoutes = require('./routes/genero.js');
-const classificacaoRoutes = require('./routes/classificacao.js');
-const personagemRoutes = require('./routes/personagem.js');
-const nacionalidadeRoutes = require('./routes/nacionalidade.js');
-const diretorRoutes = require('./routes/diretor.js');
+const generoRoutes = require('./routes/genero.js')
+const classificacaoRoutes = require('./routes/classificacao.js')
+const personagemRoutes = require('./routes/personagem.js')
+const nacionalidadeRoutes = require('./routes/nacionalidade.js')
+const diretorRoutes = require('./routes/diretor.js')
+const atorRoutes = require('./routes/ator.js')
 
 app.use('/v1/locadora/filme', filmeRoutes)
 app.use('/v1/locadora/genero', generoRoutes)
@@ -36,6 +37,7 @@ app.use('/v1/locadora/classificacao', classificacaoRoutes)
 app.use('/v1/locadora/personagem', personagemRoutes)
 app.use('/v1/locadora/nacionalidade', nacionalidadeRoutes)
 app.use('/v1/locadora/diretor', diretorRoutes)
+app.use('/v1/locadora/ator', atorRoutes)
 
 // Swagger
 const options = {

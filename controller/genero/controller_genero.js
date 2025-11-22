@@ -27,7 +27,7 @@ const listarGeneros = async function () {
         if (result) {
             if (result.length > 0) {
                 // Processamento para adicionar os generos em cada filme
-                for (genero of result) {
+                for (let genero of result) {
                     let resultFilmes = await controllerFilmeGenero.listarFilmesIdGenero(genero.genero_id)
 
                     if (resultFilmes.status_code == 200)
@@ -63,7 +63,7 @@ const buscarGeneroId = async function (genero_id) {
 
             if (result) {
                 if (result.length > 0) {
-                    for (genero of result) {
+                    for (let genero of result) {
                         let resultFilmes = await controllerFilmeGenero.listarFilmesIdGenero(genero_id)
 
                         if (resultFilmes.status_code == 200)

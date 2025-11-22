@@ -10,6 +10,9 @@
 const { json } = require('body-parser')
 const atorDAO = require('../../model/DAO/ator.js')
 
+//Import da controller filmeAtor (tabela de relação)
+const controllerFilmeAtor = require('../filme/controller_filme_ator.js')
+
 //import do arquivo que padroniza as respostas
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
@@ -18,10 +21,17 @@ const listarAtores = async function () {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-        //Chama a função do DAO para retornar a lista de diretores
+        //Chama a função do DAO para retornar a lista de atores
         let result = await atorDAO.getSelectAllActor()
+
         if (result) {
-            //Validação para identificar se o retorno do banco é um array (vazio ou com dados)
+            for (let ator of result) {
+                let resultFilmes = await controllerFilmeAtor.listarFilmesIdAtor(ator.ator_id)
+
+                if (resultFilmes.status_code == 200)
+                    ator.filme = resultFilmes.response.film_actor
+            }
+
             if (result.length > 0) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
@@ -51,9 +61,16 @@ const buscarAtorId = async function (ator_id) {
 
             if (result) {
                 if (result.length > 0) {
+                    for (let ator of result) {
+                        let resultFilmes = await controllerFilmeAtor.listarFilmesIdAtor(ator_id)
+
+                        if (resultFilmes.status_code == 200)
+                            ator.filme = resultFilmes.response.film_actor
+                    }
+
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                    MESSAGE.HEADER.response.director = result
+                    MESSAGE.HEADER.response.actor = result
 
                     return MESSAGE.HEADER //200
                 } else {
@@ -68,36 +85,35 @@ const buscarAtorId = async function (ator_id) {
             return MESSAGE.ERROR_REQUIRED_FIELDS //400
         }
     } catch (error) {
-        console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
-//Insere um novo diretor
-const inserirDiretor = async function (diretor, contentType) { 
+//Insere um novo ator
+const inserirAtor = async function (ator, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
             //Chama a função de validação dos dados de cadastro
-            let validarDados = await validarDadosDiretor(diretor)
+            let validarDados = await validarDadosAtor(ator)
 
             if (!validarDados) {
 
-                //Chama a função do DAO para inserir um novo diretor
-                let result = await diretorDAO.setInsertDirector(diretor, contentType)
+                //Chama a função do DAO para inserir um novo ator
+                let result = await atorDAO.setInsertActor(ator, contentType)
 
                 if (result) {
                     //Chama uma função para receber o ID gerado no BD
-                    let lastIdDiretor = await diretorDAO.getSelectLastIdDirector()
+                    let lastIdActor = await atorDAO.getSelectLastIdActor()
 
-                    if (lastIdDiretor) {
-                        diretor.id = lastIdDiretor
+                    if (lastIdActor) {
+                        ator.id = lastIdActor
 
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
-                        MESSAGE.HEADER.response = diretor
+                        MESSAGE.HEADER.response = ator
 
                         return MESSAGE.HEADER //201
                     } else {
@@ -118,9 +134,9 @@ const inserirDiretor = async function (diretor, contentType) {
     }
 }
 
-//Atualizar Diretor filtrando pelo ID
-const atualizarDiretor = async function (diretor, id, contentType) {
-    
+//Atualizar Ator filtrando pelo ID
+const atualizarAtor = async function (ator, id, contentType) {
+
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
@@ -128,27 +144,27 @@ const atualizarDiretor = async function (diretor, id, contentType) {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
             //Chama a função de validação dos dados de cadastro
-            let validarDados = await validarDadosDiretor(diretor)
+            let validarDados = await validarDadosAtor(ator)
 
             if (!validarDados) {
 
                 //Chama a função para validar a consistência do ID e verificar se existe no banco de dados                
-                let validarID = await buscarDiretorId(id)
+                let validarID = await buscarAtorId(id)
 
                 //Verifica se o ID existe no BD, caso exista teremos o status 200  
                 if (validarID.status_code == 200) {
 
-                    //Adicionando o ID no JSON com os dados do diretor
-                    diretor.id = parseInt(id)
+                    //Adicionando o ID no JSON com os dados do ator
+                    ator.id = parseInt(id)
 
-                    //Chama a função do DAO para atualizar um diretor
-                    let result = await diretorDAO.setUpdateDirector(diretor)
+                    //Chama a função do DAO para atualizar um ator
+                    let result = await atorDAO.setUpdateActor(ator)
 
                     if (result) {
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response = diretor
+                        MESSAGE.HEADER.response = ator
 
                         return MESSAGE.HEADER //200
                     } else {
@@ -168,27 +184,30 @@ const atualizarDiretor = async function (diretor, id, contentType) {
     }
 }
 
-//Apaga um Diretor filtrando pelo ID
-const excluirDiretor = async function (id) {
+//Apaga um Ator filtrando pelo ID
+const excluirAtor = async function (id) {
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-
-        let validarID = await buscarDiretorId(id)
+        let validarID = await buscarAtorId(id)
 
         if (validarID.status_code == 200) {
 
-            let result = await diretorDAO.setDeleteDirector(id)
+            let resultDeleteFilmeAtor = await controllerFilmeAtor.excluirFilmeAtorIdAtor(id)
 
-            if (result) {
-                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
-                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
-                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+            if (resultDeleteFilmeAtor) {
+                let result = await atorDAO.setDeleteActor(id)
 
-                return MESSAGE.HEADER //200
-            } else {
-                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                if (result) {
+                    MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETED_ITEM.status
+                    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETED_ITEM.status_code
+                    MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETED_ITEM.message
+
+                    return MESSAGE.HEADER //200
+                } else {
+                    return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                }
             }
         } else {
             return validarID
@@ -199,19 +218,19 @@ const excluirDiretor = async function (id) {
     }
 }
 
-const validarDadosDiretor = async function (diretor) {
+const validarDadosAtor = async function (ator) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    if (diretor.nome == '' || diretor.nome == null || diretor.nome == undefined || diretor.nome.length > 100) {
+    if (ator.nome == '' || ator.nome == null || ator.nome == undefined || ator.nome.length > 100) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [NOME] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
-    } else if (diretor.data_nascimento == '' || diretor.data_nascimento == null || diretor.data_nascimento == undefined || diretor.data_nascimento.length != 10) {
+    } else if (ator.data_nascimento == '' || ator.data_nascimento == null || ator.data_nascimento == undefined || ator.data_nascimento.length != 10) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA_NASCIMENTO] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
-    } else if (diretor.genero == '' || diretor.genero == null || diretor.genero == undefined || diretor.genero.length > 50) {
+    } else if (ator.genero == '' || ator.genero == null || ator.genero == undefined || ator.genero.length > 50) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [GÊNERO] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
-    } else if (diretor.foto == undefined || diretor.foto.length > 100) {
+    } else if (ator.foto == undefined || ator.foto.length > 100) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [FOTO] inválido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS
     } else {
@@ -221,9 +240,9 @@ const validarDadosDiretor = async function (diretor) {
 
 
 module.exports = {
-    listarDiretores,
-    buscarDiretorId,
-    inserirDiretor,
-    atualizarDiretor,
-    excluirDiretor
+    listarAtores,
+    buscarAtorId,
+    inserirAtor,
+    atualizarAtor,
+    excluirAtor
 }

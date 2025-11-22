@@ -52,7 +52,11 @@ const prisma = new PrismaClient()
 const getSelectAllFilms = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_filme order by id desc`
+        let sql = `select f.*, c.nome AS classificacao
+        from tbl_filme as f
+        inner join tbl_classificacao AS c
+            on c.id_classificacao = f.id_classificacao
+        order by f.id desc`
 
         //Executa no BD o scrpt SQL
         let result = await prisma.$queryRawUnsafe(sql)
@@ -71,7 +75,11 @@ const getSelectAllFilms = async function () {
 const getSelectByIdFilms = async function (id) {
     try {
         //Script SQL
-        let sql = `select * from tbl_filme where id=${id}`
+        let sql = `select f.*, c.nome AS classificacao
+        from tbl_filme as f
+        inner join tbl_classificacao AS c
+            on c.id_classificacao = f.id_classificacao
+        where f.id = ${id}`
 
         //Executa no BD o scrpt SQL
         let result = await prisma.$queryRawUnsafe(sql)
@@ -81,7 +89,6 @@ const getSelectByIdFilms = async function (id) {
         else
             return false
     } catch (error) {
-        // console.log(error)
         return false
     }
 }
@@ -99,7 +106,6 @@ const getSelectLastIdFilm = async function () {
         else
             return false
     } catch (error) {
-        console.log(error)
         return false
     }
 }
@@ -113,7 +119,8 @@ const setInsertFilms = async function (filme) {
                         duracao,
                         orcamento,
                         trailer,
-                        capa)
+                        capa,
+                        id_classificacao)
         values(
                 '${filme.nome}',
                 '${filme.sinopse}',
@@ -121,7 +128,8 @@ const setInsertFilms = async function (filme) {
                 '${filme.duracao}',
                 '${filme.orcamento}',
                 '${filme.trailer}',
-                '${filme.capa}');`
+                '${filme.capa}',
+                ${filme.id_classificacao});`
 
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE) 
@@ -146,8 +154,9 @@ const setUpdateFilms = async function (filme) {
                         duracao                 = '${filme.duracao}',
                         orcamento               = '${filme.orcamento}',
                         trailer                 = '${filme.trailer}',
-                        capa                    = '${filme.capa}'
-                    where id = ${filme.id}`
+                        capa                    = '${filme.capa}',
+                        id_classificacao        = ${filme.id_classificacao}
+                    where id = ${filme.id};`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE) 
         let result = await prisma.$executeRawUnsafe(sql)

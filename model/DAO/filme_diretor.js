@@ -1,6 +1,6 @@
 /*******************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de no Banco de Dados MySQL referente ao relacionamento entre filme e genero
- * Data: 05/11/2025
+ * Objetivo: Arquivo responsável pela realização do CRUD de no Banco de Dados MySQL referente ao relacionamento entre filme e diretor
+ * Data: 20/11/2025
  * Autor: David
  * Versão: 1.0
  *******************************************************************************************/
@@ -13,11 +13,11 @@ const { PrismaClient } = require('../../generated/prisma')
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
 
-//Retornar todos os filmes e generos no banco de dados
-const getSelectAllFilmsGenres = async function () {
+//Retornar todos os filmes e diretores no banco de dados
+const getSelectAllFilmsDirectors = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_filme_genero order by id desc`
+        let sql = `select * from tbl_filme_diretor order by id desc`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -27,15 +27,15 @@ const getSelectAllFilmsGenres = async function () {
         else
             return false
     } catch (error) {
-        return false
+        return error
     }
 }
 
-//Retornar filme e gênero filtrando pelo ID
-const getSelectByIdFilmGenre = async function (id) {
+//Retornar filme e diretor filtrando pelo ID
+const getSelectByIdFilmDirector = async function (id) {
     try {
         //Script SQL
-        let sql = `select * from tbl_filme_genero where id = ${id}`
+        let sql = `select * from tbl_filme_diretor where id = ${id}`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -45,20 +45,20 @@ const getSelectByIdFilmGenre = async function (id) {
         else
             return false
     } catch (error) {
-        return false
+        return error
     }
 }
 
 
-const getSelectGenresByIdFilm = async function (idFilme) {
+const getSelectDirectorsByIdFilm = async function (idFilme) {
     try {
         //Script SQL
-        let sql = `select tbl_genero.genero_id, tbl_genero.nome
+        let sql = `select tbl_diretor.diretor_id, tbl_diretor.nome
                         from tbl_filme
-                            inner join tbl_filme_genero
-                                on tbl_filme.id = tbl_filme_genero.id_filme
-                            inner join tbl_genero
-                                on tbl_genero.genero_id = tbl_filme_genero.id_genero
+                            inner join tbl_filme_diretor
+                                on tbl_filme.id = tbl_filme_diretor.id_filme
+                            inner join tbl_diretor
+                                on tbl_diretor.diretor_id = tbl_filme_diretor.id_diretor
                         where tbl_filme.id = ${idFilme}`
 
         //Executar o script no BD
@@ -73,16 +73,16 @@ const getSelectGenresByIdFilm = async function (idFilme) {
     }
 }
 
-const getSelectFilmsByIdGenre = async function (idGenero) {
+const getSelectFilmsByIdDirector = async function (idDiretor) {
     try {
         //Script SQL
         let sql = `select tbl_filme.id, tbl_filme.nome
                         from tbl_filme
-                            inner join tbl_filme_genero
-                                on tbl_filme.id = tbl_filme_genero.id_filme
-                            inner join tbl_genero
-                                on tbl_genero.genero_id = tbl_filme_genero.id_genero
-                        where tbl_genero.genero_id = ${idGenero};`
+                            inner join tbl_filme_diretor
+                                on tbl_filme.id = tbl_filme_diretor.id_filme
+                            inner join tbl_diretor
+                                on tbl_diretor.diretor_id = tbl_filme_diretor.id_diretor
+                        where tbl_diretor.diretor_id = ${idDiretor};`
 
         //Executar o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -96,11 +96,12 @@ const getSelectFilmsByIdGenre = async function (idGenero) {
     }
 }
 
+
 //Retornar o ultimo ID
-const getSelectLastIdFilmGenre = async function () {
+const getSelectLastIdFilmDirector = async function () {
     try {
         //Script SQL
-        let sql = `select id from tbl_filme_genero order by id desc limit 1`
+        let sql = `select id from tbl_filme_diretor order by id desc limit 1`
 
         //Executa o script no BD
         let result = await prisma.$queryRawUnsafe(sql)
@@ -115,12 +116,11 @@ const getSelectLastIdFilmGenre = async function () {
 }
 
 //Insere um filme no BD
-const setInsertFilmsGenres = async function (filmeGenero) {
+const setInsertFilmsDirectors = async function (filmeDiretor) {
     try {
-        let sql = `insert into tbl_filme_genero (id_filme, id_genero)
+        let sql = `insert into tbl_filme_diretor (id_filme, id_diretor)
         values(
-            ${filmeGenero.id_filme}, ${filmeGenero.id_genero});`
-        console.log(sql)
+            ${filmeDiretor.id_filme}, ${filmeDiretor.id_diretor});`
         let result = await prisma.$executeRawUnsafe(sql)
 
         if (result)
@@ -132,13 +132,13 @@ const setInsertFilmsGenres = async function (filmeGenero) {
     }
 }
 
-//Atualiza um gên no banco filtrando por ID
-const setUpdateFilmsGenres = async function (filmeGenero) {
+//Atualiza um diretor no banco filtrando por ID
+const setUpdateFilmsDirectors = async function (filmeDiretor) {
     try {
-        let sql = `update tbl_filme_genero set
-                         id_filme = ${filmeGenero.id_filme},
-                         id_genero = ${filmeGenero.id_genero}
-                    where id = ${filmeGenero.id}`
+        let sql = `update tbl_filme_diretor set
+                         id_filme = ${filmeDiretor.id_filme},
+                         id_diretor = ${filmeDiretor.id_diretor}
+                    where id = ${filmeDiretor.id}`
 
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSER, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
@@ -152,10 +152,10 @@ const setUpdateFilmsGenres = async function (filmeGenero) {
     }
 }
 
-//Apaga um filme_gênero no banco de dados
-const setDeleteFilmsGenres = async function (id) {
+//Apaga um filme_diretor no banco de dados
+const setDeleteFilmsDirectors = async function (id) {
     try {
-        let sql = `delete from tbl_filme_genero where id = ${id}`
+        let sql = `delete from tbl_filme_diretor where id = ${id}`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -168,10 +168,10 @@ const setDeleteFilmsGenres = async function (id) {
     }
 }
 
-//Apaga um filme_genero no banco de dados através do idFilme
-const setDeleteFilmsGenresByIdFilm = async function (idFilme) {
+//Apaga um filme_diretor no banco de dados através do idFilme
+const setDeleteFilmsDirectorsByIdFilm = async function (idFilme) {
     try {
-        let sql = `delete from tbl_filme_genero where id_filme = ${idFilme}`
+        let sql = `delete from tbl_filme_diretor where id_filme = ${idFilme}`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -184,10 +184,10 @@ const setDeleteFilmsGenresByIdFilm = async function (idFilme) {
     }
 }
 
-//Apaga um filme_genero no banco de dados através do idGenero
-const setDeleteFilmsGenresByIdGenre = async function (idGenero) {
+//Apaga um filme_diretor no banco de dados através do idDiretor
+const setDeleteFilmsDirectorsByIdDirector = async function (idDiretor) {
     try {
-        let sql = `delete from tbl_filme_genero where id_genero = ${idGenero}`
+        let sql = `delete from tbl_filme_diretor where id_diretor = ${idDiretor}`
 
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -202,14 +202,14 @@ const setDeleteFilmsGenresByIdGenre = async function (idGenero) {
 
 //Exports de funções
 module.exports = {
-    getSelectAllFilmsGenres,
-    getSelectByIdFilmGenre,
-    getSelectFilmsByIdGenre,
-    getSelectGenresByIdFilm,
-    getSelectLastIdFilmGenre,
-    setInsertFilmsGenres,
-    setUpdateFilmsGenres,
-    setDeleteFilmsGenres,
-    setDeleteFilmsGenresByIdFilm,
-    setDeleteFilmsGenresByIdGenre
+    getSelectAllFilmsDirectors,
+    getSelectByIdFilmDirector,
+    getSelectFilmsByIdDirector,
+    getSelectDirectorsByIdFilm,
+    getSelectLastIdFilmDirector,
+    setInsertFilmsDirectors,
+    setUpdateFilmsDirectors,
+    setDeleteFilmsDirectors,
+    setDeleteFilmsDirectorsByIdFilm,
+    setDeleteFilmsDirectorsByIdDirector
 }
