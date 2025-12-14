@@ -163,7 +163,7 @@ router.post('/', cors(), bodyParserJSON, async function (request, response) {
  *                 type: string
  *     responses:
  *       200:
- *         description: Filme atualizado com sucesso
+ *         description: Diretor atualizado com sucesso
  *       400:
  *         description: Atributos inválidos
  *       500:
